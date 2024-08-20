@@ -12,7 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
-	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/rs/zerolog/log"
 )
 
@@ -23,12 +22,7 @@ type Recipe struct {
 	Instructions []string `json:"instructions"`
 }
 
-func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
-	id := req.PathParameters["id"]
-	if id == "" {
-		return helpers.ClientError(http.StatusBadRequest, "id is required")
-	}
-
+func GetRecipes(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	cfg, err := config.LoadDefaultConfig(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to load config")
@@ -37,33 +31,29 @@ func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (even
 
 	client := dynamodb.NewFromConfig(cfg)
 
-	output, err := client.GetItem(ctx,
-		&dynamodb.GetItemInput{
-			TableName: aws.String("Recipes"),
-			Key: map[string]types.AttributeValue{
-				"id": &types.AttributeValueMemberS{Value: id},
-			},
-		})
+	output, err := client.Scan(ctx, &dynamodb.ScanInput{
+		TableName: aws.String("Recipes"),
+	})
 
 	if err != nil {
-		log.Error().Err(err).Msg("failed to get item")
+		log.Error().Err(err).Msg("failed to scan table")
 		return helpers.ServerError(err)
 	}
 
-	if output.Item == nil {
-		return helpers.ClientError(http.StatusNotFound, "recipe not found")
+	recipes := make([]Recipe, 0, len(output.Items))
+	for _, item := range output.Items {
+		recipe := Recipe{}
+		err = attributevalue.UnmarshalMap(item, &recipe)
+		if err != nil {
+			log.Error().Err(err).Msg("failed to unmarshal recipe")
+			return helpers.ServerError(err)
+		}
+		recipes = append(recipes, recipe)
 	}
 
-	recipe := Recipe{}
-	err = attributevalue.UnmarshalMap(output.Item, &recipe)
+	body, err := json.Marshal(recipes)
 	if err != nil {
-		log.Error().Err(err).Msg("failed to unmarshal recipe")
-		return helpers.ServerError(err)
-	}
-
-	body, err := json.Marshal(recipe)
-	if err != nil {
-		log.Error().Err(err).Msg("failed to marshal recipe")
+		log.Error().Err(err).Msg("failed to marshal recipes")
 		return helpers.ServerError(err)
 	}
 
@@ -77,5 +67,5 @@ func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (even
 }
 
 func main() {
-	lambda.Start(getRecipeByID)
+	lambda.Start(GetRecipes)
 }
