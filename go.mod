@@ -2,10 +2,13 @@ module serverless-api-go-example
 
 go 1.21.5
 
+replace github.com/chaotictoejam/serverless-api-golang => ./
+
 require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.30.4
 	github.com/aws/aws-sdk-go-v2/config v1.27.28
+	github.com/chaotictoejam/serverless-api-golang v0.0.0-00010101000000-000000000000
 )
 
 require (

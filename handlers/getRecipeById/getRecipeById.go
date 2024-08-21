@@ -14,14 +14,9 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/rs/zerolog/log"
-)
 
-type Recipe struct {
-	ID           string   `json:"id"`
-	Title        string   `json:"title"`
-	Ingredients  []string `json:"ingredients"`
-	Instructions []string `json:"instructions"`
-}
+	"github.com/chaotictoejam/serverless-api-golang/models"
+)
 
 func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	id := req.PathParameters["id"]
@@ -54,7 +49,7 @@ func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (even
 		return helpers.ClientError(http.StatusNotFound, "recipe not found")
 	}
 
-	recipe := Recipe{}
+	recipe := models.Recipe{}
 	err = attributevalue.UnmarshalMap(output.Item, &recipe)
 	if err != nil {
 		log.Error().Err(err).Msg("failed to unmarshal recipe")
