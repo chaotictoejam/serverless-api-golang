@@ -20,6 +20,7 @@ custom:
 provider:
   name: aws
   runtime: provided.al2023
+  architecture: arm64
   stage: dev
   region: us-east-1
   environment:
@@ -37,50 +38,48 @@ provider:
 
 package:
  individually: true
- exclude:
-   - ./**
 
 functions:
   createRecipe:
-    handler: bin/handlers/createRecipe
+    handler: bootstrap 
     package:
-     include:
-       - ./bin/handlers/createRecipe
+     artifact: ./build/createRecipe.zip
     events:
       - http:
           path: recipe
           method: post
           cors: true
+      #- cloudwatchLog: '/aws/lambda/createRecipe'
   getRecipeById:
-    handler: bin/handlers/getRecipeById
+    handler: bootstrap 
     package:
-     include:
-       - ./bin/handlers/getRecipeById
+     artifact: ./build/getRecipeById.zip
     events:
       - http:
           path: recipes/{id}
           method: get
           cors: true
+      #- cloudwatchLog: '/aws/lambda/getRecipeById'
   getRecipes:
-    handler: bin/handlers/getRecipes
+    handler: bootstrap 
     package:
-     include:
-       - ./bin/handlers/getRecipes
+     artifact: ./build/getRecipes.zip
     events:
       - http:
           path: recipes
           method: get
           cors: true
-  updateRecipes:
-    handler: bin/handlers/updateRecipe
+      #- cloudwatchLog: '/aws/lambda/getRecipes'
+  updateRecipe:
+    handler: bootstrap
     package:
-     include:
-       - ./bin/handlers/updateRecipe
+     artifact: ./build/updateRecipe.zip
     events:
       - http:
           path: recipe/{id}
           method: put
           cors: true
+      #- cloudwatchLog: '/aws/lambda/updateRecipe'
           
 resources:
   Resources:

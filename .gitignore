@@ -2,7 +2,7 @@
 .serverless
 
 # Binaries for programs and plugins
-bin
+build
 *.exe
 *.exe~
 *.dll
