@@ -1,0 +1,99 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: chaotictoejam
+# "app" enables Serverless Framework Dashboard features and sharing them with other Services.
+app: serverless-api-go-example
+# AWS service name.
+service: serverless-api-go-example
+
+custom:
+  recipesTableName: ${self:service}-${self:provider.stage}-recipes
+  recipesTableArn: # ARNs are addresses of deployed services in AWS space.
+    Fn::Join:
+    - ":"
+    - - arn
+      - aws
+      - dynamodb
+      - Ref: AWS::Region
+      - Ref: AWS::AccountId
+      - table/${self:custom.recipesTableName}
+
+provider:
+  name: aws
+  runtime: provided.al2023
+  stage: dev
+  region: us-east-1
+  environment:
+    RECIPES_TABLE_NAME: ${self:custom.recipesTableName}
+  iamRoleStatements: # Defines what other AWS services our lambda functions can access.
+    - Effect: Allow # Allow access to DynamoDB tables.
+      Action:
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:UpdateItem
+        - dynamodb:DeleteItem
+      Resource:
+        - ${self:custom.recipesTableArn}
+
+package:
+ individually: true
+ exclude:
+   - ./**
+
+functions:
+  createRecipe:
+    handler: bin/handlers/createRecipe
+    package:
+     include:
+       - ./bin/handlers/createRecipe
+    events:
+      - http:
+          path: recipe
+          method: post
+          cors: true
+  getRecipeById:
+    handler: bin/handlers/getRecipeById
+    package:
+     include:
+       - ./bin/handlers/getRecipeById
+    events:
+      - http:
+          path: recipes/{id}
+          method: get
+          cors: true
+  getRecipes:
+    handler: bin/handlers/getRecipes
+    package:
+     include:
+       - ./bin/handlers/getRecipes
+    events:
+      - http:
+          path: recipes
+          method: get
+          cors: true
+  updateRecipes:
+    handler: bin/handlers/updateRecipe
+    package:
+     include:
+       - ./bin/handlers/updateRecipe
+    events:
+      - http:
+          path: recipe/{id}
+          method: put
+          cors: true
+          
+resources:
+  Resources:
+    recipesTable: # Define a new DynamoDB Table resource to store items
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.recipesTableName}
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
