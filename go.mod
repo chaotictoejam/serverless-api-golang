@@ -2,13 +2,10 @@ module serverless-api-go-example
 
 go 1.21.5
 
-replace github.com/chaotictoejam/serverless-api-golang => ./
-
 require (
 	github.com/aws/aws-lambda-go v1.47.0
 	github.com/aws/aws-sdk-go-v2 v1.30.4
 	github.com/aws/aws-sdk-go-v2/config v1.27.28
-	github.com/chaotictoejam/serverless-api-golang v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -34,5 +31,6 @@ require (
 	github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue v1.14.11
 	github.com/aws/aws-sdk-go-v2/service/dynamodb v1.34.5
 	github.com/aws/smithy-go v1.20.4 // indirect
+	github.com/google/uuid v1.6.0
 	github.com/rs/zerolog v1.33.0
 )

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 	"serverless-api-go-example/helpers"
+	"serverless-api-go-example/models"
 
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
@@ -14,8 +15,6 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
 	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
 	"github.com/rs/zerolog/log"
-
-	"github.com/chaotictoejam/serverless-api-golang/models"
 )
 
 func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
