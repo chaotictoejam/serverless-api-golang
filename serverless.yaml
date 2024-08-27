@@ -6,7 +6,7 @@ app: serverless-api-go-example
 service: serverless-api-go-example
 
 custom:
-  recipesTableName: ${self:service}-${self:provider.stage}-recipes
+  recipesTableName: Recipes
   recipesTableArn: # ARNs are addresses of deployed services in AWS space.
     Fn::Join:
     - ":"
@@ -25,23 +25,25 @@ provider:
   region: us-east-1
   environment:
     RECIPES_TABLE_NAME: ${self:custom.recipesTableName}
-  iamRoleStatements: # Defines what other AWS services our lambda functions can access.
-    - Effect: Allow # Allow access to DynamoDB tables.
-      Action:
-        - dynamodb:Scan
-        - dynamodb:GetItem
-        - dynamodb:PutItem
-        - dynamodb:UpdateItem
-        - dynamodb:DeleteItem
-      Resource:
-        - ${self:custom.recipesTableArn}
+  iam:
+    role:
+      name: dynamodb-lambda-${self:provider.stage}-role
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+          Resource:
+            - ${self:custom.recipesTableArn}
 
 package:
  individually: true
 
 functions:
   createRecipe:
-    handler: bootstrap 
+    handler: bootstrap
     package:
      artifact: ./build/createRecipe.zip
     events:
@@ -49,9 +51,8 @@ functions:
           path: recipe
           method: post
           cors: true
-      #- cloudwatchLog: '/aws/lambda/createRecipe'
   getRecipeById:
-    handler: bootstrap 
+    handler: bootstrap
     package:
      artifact: ./build/getRecipeById.zip
     events:
@@ -59,9 +60,8 @@ functions:
           path: recipes/{id}
           method: get
           cors: true
-      #- cloudwatchLog: '/aws/lambda/getRecipeById'
   getRecipes:
-    handler: bootstrap 
+    handler: bootstrap
     package:
      artifact: ./build/getRecipes.zip
     events:
@@ -69,7 +69,6 @@ functions:
           path: recipes
           method: get
           cors: true
-      #- cloudwatchLog: '/aws/lambda/getRecipes'
   updateRecipe:
     handler: bootstrap
     package:
@@ -79,14 +78,13 @@ functions:
           path: recipe/{id}
           method: put
           cors: true
-      #- cloudwatchLog: '/aws/lambda/updateRecipe'
           
 resources:
   Resources:
     recipesTable: # Define a new DynamoDB Table resource to store items
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.recipesTableName}
+        TableName: Recipes
         ProvisionedThroughput:
           ReadCapacityUnits: 1
           WriteCapacityUnits: 1
