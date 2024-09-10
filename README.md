@@ -2,7 +2,7 @@
 
 This repository contains an example of building a Serverless API using AWS Lambda, API Gateway, and the Serverless Framework. The API is written in Golang. 
 
-This is the example code from DEV101 "Build a Serverless API in Go"
+This is the example code from DEV101 "Build a Serverless API in Go" presented at AWS Summit Toronoto on September 11th. 2024.
 
 ## Prerequisites
 
