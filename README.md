@@ -15,7 +15,7 @@ This is the example code from DEV101 "Build a Serverless API in Go" presented at
 
 1. Clone this repository:
 ```
-git clone https://github.com/your-repo/aws-serverless-api-golang.git
+git clone https://github.com/chaotictoejam/serverless-api-golang.git
 cd aws-serverless-api-golang
 ```
 
