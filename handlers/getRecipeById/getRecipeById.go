@@ -17,7 +17,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
+func GetRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (events.APIGatewayProxyResponse, error) {
 	id := req.PathParameters["id"]
 	if id == "" {
 		return helpers.ClientError(http.StatusBadRequest, "id is required")
@@ -71,5 +71,5 @@ func getRecipeByID(ctx context.Context, req events.APIGatewayProxyRequest) (even
 }
 
 func main() {
-	lambda.Start(getRecipeByID)
+	lambda.Start(GetRecipeByID)
 }
